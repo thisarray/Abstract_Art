@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abstract Art</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Abstract Art</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<p>That abstract art program everyone makes when they first learn to draw using code.</p>
+
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+/*
+ * Integer count of rectangles.
+ */
+const COUNT = 200;
+
+/*
+ * Integer minimum size in pixels for a rectangle's width or height.
+ */
+const MINIMUM = 10;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+var rectangles;
+
+function reset() {
+  rectangles = [];
+  for (let i = 0; i < COUNT; i++) {
+    let x = getRandomInteger(0, WIDTH),
+        y = getRandomInteger(0, HEIGHT),
+        width = getRandomInteger(MINIMUM, WIDTH / 4),
+        height = getRandomInteger(MINIMUM, HEIGHT / 4),
+        red = getRandomInteger(0, 256),
+        green = getRandomInteger(0, 256),
+        blue = getRandomInteger(0, 256),
+        r = new Rect(x, y, width, height);
+    r.color = [red, green, blue];
+    rectangles.push(r);
+  }
+}
+
+function draw() {
+  screen.clear();
+  for (let r of rectangles) {
+    screen.draw.filled_rect(r, r.color);
+  }
+}
+
+window.addEventListener('load', (event) => {
+  reset();
+  screen.set_mode('#screen', '#reset', '#pause');
+});
+</script>
+</body>
+
+</html>
