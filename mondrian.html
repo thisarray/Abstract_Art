@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mondrian Art</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Mondrian Art</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<p>Abstract art in the style of
+<a href="https://en.wikipedia.org/wiki/Piet_Mondrian">Piet Mondrian</a>.</p>
+
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+/*
+ * Integer minimum width in pixels of rectangles.
+ */
+const MIN_WIDTH = 50;
+
+/*
+ * Integer maximum width in pixels of rectangles.
+ */
+const MAX_WIDTH = 200;
+
+/*
+ * Integer minimum height in pixels of rectangles.
+ */
+const MIN_HEIGHT = 100;
+
+/*
+ * Integer maximum height in pixels of rectangles.
+ */
+const MAX_HEIGHT = 200;
+
+/*
+ * Integer number of rectangles to combine.
+ */
+const COMBINE_COUNT = 12;
+
+/*
+ * Integer number of rectangles to fill.
+ */
+const FILL_COUNT = COMBINE_COUNT - 4;
+
+/*
+ * Array of string colors to fill the rectangles.
+ */
+const COLORS = ['red', 'yellow', 'blue', 'black'];
+
+/*
+ * String color of the background canvas.
+ */
+const BACKGROUND_COLOR = 'white';
+
+/*
+ * String color of the rectangle outline.
+ */
+const LINE_COLOR = 'black';
+
+/*
+ * Integer width in pixels of the rectangle outline.
+ */
+const LINE_WIDTH = 4;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+function adjacent(a, b) {
+  if ((a.left === b.left) && (a.right === b.right)) {
+    if (a.top === b.bottom) {
+      return 0;
+    }
+    else if (a.bottom === b.top) {
+      return 2;
+    }
+  }
+  else if ((a.top === b.top) && (a.bottom === b.bottom)) {
+    if (a.left === b.right) {
+      return 3;
+    }
+    else if (a.right === b.left) {
+      return 1;
+    }
+  }
+
+  return -1;
+}
+
+function test_adjacent() {
+  let rectangles = [
+    new Rect(0, 0, MIN_WIDTH, MIN_HEIGHT),
+    new Rect(0, MIN_HEIGHT, MIN_WIDTH, MIN_HEIGHT),
+    new Rect(0, MIN_HEIGHT * 2, MIN_WIDTH, MIN_HEIGHT),
+    new Rect(MIN_WIDTH, 0, MIN_WIDTH, MIN_HEIGHT),
+    new Rect(MIN_WIDTH, MIN_HEIGHT, MIN_WIDTH, MIN_HEIGHT),
+    new Rect(MIN_WIDTH, MIN_HEIGHT * 2, MIN_WIDTH, MIN_HEIGHT),
+    new Rect(MIN_WIDTH * 2, 0, MIN_WIDTH, MIN_HEIGHT),
+    new Rect(MIN_WIDTH * 2, MIN_HEIGHT, MIN_WIDTH, MIN_HEIGHT),
+    new Rect(MIN_WIDTH * 2, MIN_HEIGHT * 2, MIN_WIDTH, MIN_HEIGHT)];
+
+  for (let [i, value, expected] of [
+    [0, 0, -1],
+    [0, 1, 2],
+    [0, 2, -1],
+    [0, 3, 1],
+    [0, 4, -1],
+    [0, 5, -1],
+    [0, 6, -1],
+    [0, 7, -1],
+    [0, 8, -1],
+    [4, 0, -1],
+    [4, 1, 3],
+    [4, 2, -1],
+    [4, 3, 0],
+    [4, 4, -1],
+    [4, 5, 2],
+    [4, 6, -1],
+    [4, 7, 1],
+    [4, 8, -1],
+    [8, 0, -1],
+    [8, 1, -1],
+    [8, 2, -1],
+    [8, 3, -1],
+    [8, 4, -1],
+    [8, 5, 3],
+    [8, 6, -1],
+    [8, 7, 0],
+    [8, 8, -1]]) {
+    console.assert(adjacent(rectangles[i], rectangles[value]) === expected, 'adjacent() failed.');
+  }
+}
+test_adjacent();
+
+function generateMondrian() {
+  let widths = [],
+      heights = [],
+      rectangles = [],
+      remainder, x, y, r, target, adjacents, direction, absorbing;
+
+  /*
+   * Divide the canvas into a random grid
+   */
+
+  remainder = WIDTH;
+  while (remainder > MAX_WIDTH) {
+    x = getRandomInteger(MIN_WIDTH, MAX_WIDTH);
+    remainder -= x;
+    widths.push(x);
+  }
+  widths.push(remainder);
+
+  remainder = HEIGHT;
+  while (remainder > MAX_HEIGHT) {
+    y = getRandomInteger(MIN_HEIGHT, MAX_HEIGHT);
+    remainder -= y;
+    heights.push(y);
+  }
+  heights.push(remainder);
+
+  /*
+   * Generate rectangles to compose the random grid
+   */
+  x = 0;
+  for (let width of widths) {
+    y = 0;
+    for (let height of heights) {
+      r = new Rect(x, y, width, height);
+      r.color = BACKGROUND_COLOR;
+      rectangles.push(r);
+      y += height;
+    }
+    x += width;
+  }
+
+  /*
+   * Randomly combine rectangles with an adjacent rectangle
+   */
+  for (let n = 0; n < COMBINE_COUNT; n++) {
+    target = getRandomInteger(0, rectangles.length);
+    adjacents = [];
+    for (let i = 0; i < rectangles.length; i++) {
+      if (i === target) {
+        continue;
+      }
+      direction = adjacent(rectangles[target], rectangles[i]);
+      if (direction >= 0) {
+        adjacents.push(i);
+      }
+    }
+
+    if (adjacents.length > 0) {
+      absorbing = adjacents[getRandomInteger(0, adjacents.length)];
+      direction = adjacent(rectangles[target], rectangles[absorbing]);
+      if (direction === 0) {
+        // absorbing is above target
+        rectangles[absorbing] = new Rect(
+          rectangles[absorbing].x, rectangles[absorbing].y,
+          rectangles[absorbing].width, rectangles[absorbing].height + rectangles[target].height);
+      }
+      else if (direction === 1) {
+        // absorbing is to the right of target
+        rectangles[absorbing] = new Rect(
+          rectangles[target].x, rectangles[target].y,
+          rectangles[target].width + rectangles[absorbing].width, rectangles[target].height);
+      }
+      else if (direction === 2) {
+        // absorbing is below target
+        rectangles[absorbing] = new Rect(
+          rectangles[target].x, rectangles[target].y,
+          rectangles[target].width, rectangles[target].height + rectangles[absorbing].height);
+      }
+      else if (direction === 3) {
+        // absorbing is to the left of target
+        rectangles[absorbing] = new Rect(
+          rectangles[absorbing].x, rectangles[absorbing].y,
+          rectangles[absorbing].width + rectangles[target].width, rectangles[absorbing].height);
+      }
+      rectangles[absorbing].color = BACKGROUND_COLOR;
+
+      // Delete the target rectangle once it has been combined
+      rectangles.splice(target, 1);
+    }
+  }
+
+  /*
+   * Randomly fill the rectangles with color
+   */
+  for (let n = 0; n < FILL_COUNT; n++) {
+    target = getRandomInteger(0, rectangles.length);
+    rectangles[target].color = COLORS[getRandomInteger(0, COLORS.length)];
+  }
+
+  return rectangles;
+}
+
+var rectangles;
+
+function reset() {
+  rectangles = generateMondrian();
+}
+
+function draw() {
+  screen.fill(BACKGROUND_COLOR);
+  for (let r of rectangles) {
+    screen.draw.filled_rect(r, r.color);
+    screen.draw.rect(r, LINE_COLOR, LINE_WIDTH);
+  }
+}
+
+window.addEventListener('load', (event) => {
+  reset();
+  screen.set_mode('#screen', '#reset', '#pause');
+});
+</script>
+</body>
+
+</html>
