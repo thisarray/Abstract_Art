@@ -95,6 +95,9 @@ function getRandomInteger(min, max) {
   return Math.floor((Math.random() * (max - min)) + min);
 }
 
+/*
+ * Return an integer indicating the side the Rect instances a and b touch each other.
+ */
 function adjacent(a, b) {
   if ((a.left === b.left) && (a.right === b.right)) {
     if (a.top === b.bottom) {
@@ -278,8 +281,7 @@ function draw() {
 }
 
 window.addEventListener('load', (event) => {
-  reset();
-  screen.set_mode('#screen', '#reset', '#pause');
+  screen.init();
 });
 </script>
 </body>
