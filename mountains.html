@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mountains</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Mountains</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+/*
+ * Integer number of mountain ranges.
+ */
+const MOUNTAIN_COUNT = 6;
+
+/*
+ * Integer height in pixels of each mountain.
+ */
+const MOUNTAIN_HEIGHT = Math.floor(HEIGHT / MOUNTAIN_COUNT);
+
+/*
+ * Array color of the topmost mountain.
+ */
+const START_COLOR = [107, 142, 35];
+
+/*
+ * Array color of the bottommost mountain.
+ */
+const END_COLOR = [34, 139, 34];
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+/*
+ * Add coordinates to the array feature to close the polygon.
+ */
+function toBottom(feature) {
+  let firstX = feature[0][0],
+      lastX = feature[feature.length-1][0];
+  feature.push([lastX, HEIGHT]);
+  feature.push([firstX, HEIGHT]);
+}
+
+let mountainRanges;
+
+function reset() {
+  mountainRanges = [];
+  for (let peakY = 0; peakY < HEIGHT; peakY += MOUNTAIN_HEIGHT) {
+    let mountain = [],
+        y = peakY + MOUNTAIN_HEIGHT,
+        factor = -1;
+
+    for (let x = 0; x <= WIDTH; x += 4) {
+      mountain.push([x, y]);
+      y += factor * getRandomInteger(0, 3);
+      if (y < peakY) {
+        // Once y ascends to the peak of the mountain, descend the rest of the way
+        // Note: y is 0 at the top and HEIGHT at the bottom of the canvas
+        factor = 1;
+      }
+    }
+    toBottom(mountain);
+
+    mountainRanges.push(mountain);
+  }
+}
+
+function draw() {
+  let color = START_COLOR.slice(),
+      dr = Math.floor((END_COLOR[0] - START_COLOR[0]) / (mountainRanges.length + 1)),
+      dg = Math.floor((END_COLOR[1] - START_COLOR[1]) / (mountainRanges.length + 1)),
+      db = Math.floor((END_COLOR[2] - START_COLOR[2]) / (mountainRanges.length + 1));
+
+  screen.fill(color);
+  for (let mountain of mountainRanges) {
+    color[0] += dr;
+    color[1] += dg;
+    color[2] += db;
+    // Draw a white outline to separate and highlight the mountains
+    screen.draw.polygon(mountain, 'white');
+    screen.draw.filled_polygon(mountain, color);
+  }
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
