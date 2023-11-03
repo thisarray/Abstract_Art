@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trees</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Trees</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+/*
+ * Integer number of trees to draw.
+ */
+const TREE_COUNT = 40;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+class Tree {
+  /*
+   * height: Integer height of the tree in pixels.
+   * x: Integer x-coordinate of the base of the tree.
+   * y: Integer y-coordinate of the base of the tree.
+   */
+  constructor(height, x, y) {
+    if (typeof height !== 'number') {
+      throw new TypeError('height must be a number.');
+    }
+    if (typeof x !== 'number') {
+      throw new TypeError('x must be a number.');
+    }
+    if (typeof y !== 'number') {
+      throw new TypeError('y must be a number.');
+    }
+
+    this.height = height;
+    this.x = x;
+    this.y = y;
+
+    let length = Math.floor(this.height * 3 / 4),
+        width = 0,
+        factor = 1,
+        limit;
+    this.leaves = new Array(length).fill(0);
+    for (let i = 0; i < length; i++) {
+      this.leaves[i] = width;
+      limit = Math.floor(i / 4);
+      width += factor * getRandomInteger(1, limit);
+      if (width <= 0) {
+        factor = 1;
+      }
+      else if (limit <= width) {
+        factor = -1;
+      }
+    }
+  }
+
+  draw() {
+    screen.draw.line([this.x, this.y - this.height], [this.x, this.y], 'brown', 4);
+    for (let i = 0; i < this.leaves.length; i++) {
+      if (this.leaves[i] > 0) {
+        screen.draw.filled_rect(new Rect(this.x - this.leaves[i], this.y - this.height + i, this.leaves[i] * 2, 1), 'green');
+      }
+    }
+  }
+}
+
+let trees;
+
+function reset() {
+  trees = [];
+  for (let i = 0; i < TREE_COUNT; i++) {
+    let tree = new Tree(getRandomInteger(Math.floor(HEIGHT / 3), Math.floor(HEIGHT * 2 / 3)), getRandomInteger(0, WIDTH), getRandomInteger(0, HEIGHT));
+    trees.push(tree);
+  }
+}
+
+function draw() {
+  screen.fill('white');
+  for (let t of trees) {
+    t.draw();
+  }
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
