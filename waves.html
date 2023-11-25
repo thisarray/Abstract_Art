@@ -67,14 +67,59 @@ function getRandomInteger(min, max) {
   return Math.floor((Math.random() * (max - min)) + min);
 }
 
-/*
- * Add coordinates to the array feature to close the polygon.
- */
-function toBottom(feature) {
-  let firstX = feature[0][0],
-      lastX = feature[feature.length-1][0];
-  feature.push([lastX, HEIGHT]);
-  feature.push([firstX, HEIGHT]);
+class Wave {
+  constructor(middleY, width, stride) {
+    if (typeof middleY !== 'number') {
+      throw new TypeError('middleY must be a positive number.');
+    }
+    if (middleY <= 0) {
+      throw new RangeError('middleY must be a positive number.');
+    }
+    if (typeof width !== 'number') {
+      throw new TypeError('width must be a positive number.');
+    }
+    if (width <= 0) {
+      throw new RangeError('width must be a positive number.');
+    }
+    if (typeof stride !== 'number') {
+      throw new TypeError('stride must be a positive number.');
+    }
+    if (stride <= 0) {
+      throw new RangeError('stride must be a positive number.');
+    }
+
+    this.width = width;
+    this.offset = 0;
+
+    this.points = [];
+
+    let y = middleY,
+        factor = -1;
+    for (let x = 0; x <= this.width; x += stride) {
+      this.points.push([x, y]);
+      y += factor * getRandomInteger(1, 4);
+      if (((factor < 0) && (y < (middleY - HALF_HEIGHT))) ||
+          ((factor > 0) && (y > (middleY + HALF_HEIGHT)))) {
+        // Reverse the direction when the wave gets too high or low
+        factor *= -1;
+      }
+    }
+  }
+
+  /*
+   * Draw this Wave instance in color with a white outline.
+   */
+  draw(color) {
+    let wave = this.points.map(p => [p[0] + this.offset, p[1]]);
+
+    // Add points to close the polygon along the bottom
+    wave.push([wave[wave.length-1][0], HEIGHT]);
+    wave.push([wave[0][0], HEIGHT]);
+
+    // Draw a white outline to separate and highlight the wave
+    screen.draw.polygon(wave, 'white');
+    screen.draw.filled_polygon(wave, color);
+  }
 }
 
 let waves;
@@ -82,22 +127,7 @@ let waves;
 function reset() {
   waves = [];
   for (let middle = HALF_HEIGHT; middle < HEIGHT; middle += WAVE_HEIGHT) {
-    let wave = [],
-        y = middle,
-        factor = -1;
-
-    for (let x = 0; x <= WIDTH; x += 4) {
-      wave.push([x, y]);
-      y += factor * getRandomInteger(1, 4);
-      if (((factor < 0) && (y < (middle - HALF_HEIGHT))) ||
-          ((factor > 0) && (y > (middle + HALF_HEIGHT)))) {
-        // Reverse the direction when the wave gets too high or low
-        factor *= -1;
-      }
-    }
-    toBottom(wave);
-
-    waves.push(wave);
+    waves.push(new Wave(middle, WIDTH, 4));
   }
 }
 
@@ -108,13 +138,11 @@ function draw() {
       db = Math.floor((END_COLOR[2] - START_COLOR[2]) / (waves.length + 1));
 
   screen.fill(color);
-  for (let wave of waves) {
+  for (let w of waves) {
     color[0] += dr;
     color[1] += dg;
     color[2] += db;
-    // Draw a white outline to separate and highlight the waves
-    screen.draw.polygon(wave, 'white');
-    screen.draw.filled_polygon(wave, color);
+    w.draw(color);
   }
 }
 
