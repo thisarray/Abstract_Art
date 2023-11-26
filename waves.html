@@ -59,6 +59,16 @@ const START_COLOR = [135, 206, 250];
 const END_COLOR = [0, 0, 139];
 
 /*
+ * Duration in seconds to stay on each frame.
+ */
+const ANIMATION_RATE = 0.01;
+
+/*
+ * Integer number of pixels of overflow wave to generate.
+ */
+const EXTRA = Math.floor(WIDTH / 10);
+
+/*
  * Return a random integer N such that min <= N < max.
  */
 function getRandomInteger(min, max) {
@@ -68,7 +78,7 @@ function getRandomInteger(min, max) {
 }
 
 class Wave {
-  constructor(middleY, width, stride) {
+  constructor(middleY, width, stride, toRight = false) {
     if (typeof middleY !== 'number') {
       throw new TypeError('middleY must be a positive number.');
     }
@@ -88,8 +98,15 @@ class Wave {
       throw new RangeError('stride must be a positive number.');
     }
 
-    this.width = width;
-    this.offset = 0;
+    this.width = width + EXTRA;
+    if (toRight) {
+      this.direction = 1;
+      this.offset = -EXTRA;
+    }
+    else {
+      this.direction = -1;
+      this.offset = 0;
+    }
 
     this.points = [];
 
@@ -104,6 +121,8 @@ class Wave {
         factor *= -1;
       }
     }
+
+    this.timer = 0;
   }
 
   /*
@@ -120,14 +139,27 @@ class Wave {
     screen.draw.polygon(wave, 'white');
     screen.draw.filled_polygon(wave, color);
   }
+
+  update(dt) {
+    this.timer += dt;
+    if (this.timer > ANIMATION_RATE) {
+      this.offset += this.direction;
+      if ((this.offset <= -EXTRA) || (0 <= this.offset)) {
+        this.direction *= -1;
+      }
+      this.timer = 0;
+    }
+  }
 }
 
 let waves;
 
 function reset() {
   waves = [];
+  let i = 0;
   for (let middle = HALF_HEIGHT; middle < HEIGHT; middle += WAVE_HEIGHT) {
-    waves.push(new Wave(middle, WIDTH, 4));
+    waves.push(new Wave(middle, WIDTH, 4, (i % 2) === 1));
+    i++;
   }
 }
 
@@ -143,6 +175,12 @@ function draw() {
     color[1] += dg;
     color[2] += db;
     w.draw(color);
+  }
+}
+
+function update(dt) {
+  for (let w of waves) {
+    w.update(dt);
   }
 }
 
