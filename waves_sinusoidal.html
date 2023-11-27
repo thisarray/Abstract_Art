@@ -68,14 +68,37 @@ const START_COLOR = [135, 206, 250];
  */
 const END_COLOR = [0, 0, 139];
 
-/*
- * Add coordinates to the array feature to close the polygon.
- */
-function toBottom(feature) {
-  let firstX = feature[0][0],
-      lastX = feature[feature.length-1][0];
-  feature.push([lastX, HEIGHT]);
-  feature.push([firstX, HEIGHT]);
+class Wave {
+  constructor(middleY) {
+    if (typeof middleY !== 'number') {
+      throw new TypeError('middleY must be a positive number.');
+    }
+    if (middleY <= 0) {
+      throw new RangeError('middleY must be a positive number.');
+    }
+
+    this.offset = 0;
+
+    this.points = [];
+    for (let x = 0; x <= (FREQUENCY * PERIOD); x++) {
+      this.points.push([x, middleY - (HALF_HEIGHT * Math.sin((x / PERIOD) * 2 * Math.PI))]);
+    }
+  }
+
+  /*
+   * Draw this Wave instance in color with a white outline.
+   */
+  draw(color) {
+    let wave = this.points.map(p => [p[0] + this.offset, p[1]]);
+
+    // Add points to close the polygon along the bottom
+    wave.push([wave[wave.length-1][0], HEIGHT]);
+    wave.push([wave[0][0], HEIGHT]);
+
+    // Draw a white outline to separate and highlight the wave
+    screen.draw.polygon(wave, 'white');
+    screen.draw.filled_polygon(wave, color);
+  }
 }
 
 let waves;
@@ -83,16 +106,7 @@ let waves;
 function reset() {
   waves = [];
   for (let middle = HALF_HEIGHT; middle < HEIGHT; middle += WAVE_HEIGHT) {
-    let wave = [],
-        y;
-
-    for (let x = 0; x <= WIDTH; x++) {
-      wave.push([x, y]);
-      y = middle - (HALF_HEIGHT * Math.sin((x / PERIOD) * 2 * Math.PI));
-    }
-    toBottom(wave);
-
-    waves.push(wave);
+    waves.push(new Wave(middle));
   }
 }
 
@@ -103,13 +117,11 @@ function draw() {
       db = Math.floor((END_COLOR[2] - START_COLOR[2]) / (waves.length + 1));
 
   screen.fill(color);
-  for (let wave of waves) {
+  for (let w of waves) {
     color[0] += dr;
     color[1] += dg;
     color[2] += db;
-    // Draw a white outline to separate and highlight the waves
-    screen.draw.polygon(wave, 'white');
-    screen.draw.filled_polygon(wave, color);
+    w.draw(color);
   }
 }
 
