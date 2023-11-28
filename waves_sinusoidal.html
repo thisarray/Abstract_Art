@@ -68,8 +68,13 @@ const START_COLOR = [135, 206, 250];
  */
 const END_COLOR = [0, 0, 139];
 
+/*
+ * Duration in seconds to stay on each frame.
+ */
+const ANIMATION_RATE = 0.01;
+
 class Wave {
-  constructor(middleY) {
+  constructor(middleY, toRight = false) {
     if (typeof middleY !== 'number') {
       throw new TypeError('middleY must be a positive number.');
     }
@@ -77,12 +82,21 @@ class Wave {
       throw new RangeError('middleY must be a positive number.');
     }
 
-    this.offset = 0;
+    if (toRight) {
+      this.direction = 1;
+      this.offset = -PERIOD;
+    }
+    else {
+      this.direction = -1;
+      this.offset = 0;
+    }
 
     this.points = [];
-    for (let x = 0; x <= (FREQUENCY * PERIOD); x++) {
+    for (let x = 0; x <= ((FREQUENCY + 1) * PERIOD); x++) {
       this.points.push([x, middleY - (HALF_HEIGHT * Math.sin((x / PERIOD) * 2 * Math.PI))]);
     }
+
+    this.timer = 0;
   }
 
   /*
@@ -99,14 +113,27 @@ class Wave {
     screen.draw.polygon(wave, 'white');
     screen.draw.filled_polygon(wave, color);
   }
+
+  update(dt) {
+    this.timer += dt;
+    if (this.timer > ANIMATION_RATE) {
+      this.offset += this.direction;
+      if ((this.offset <= -PERIOD) || (0 <= this.offset)) {
+        this.direction *= -1;
+      }
+      this.timer = 0;
+    }
+  }
 }
 
 let waves;
 
 function reset() {
   waves = [];
+  let i = 0;
   for (let middle = HALF_HEIGHT; middle < HEIGHT; middle += WAVE_HEIGHT) {
-    waves.push(new Wave(middle));
+    waves.push(new Wave(middle, (i % 2) === 1));
+    i++;
   }
 }
 
@@ -122,6 +149,12 @@ function draw() {
     color[1] += dg;
     color[2] += db;
     w.draw(color);
+  }
+}
+
+function update(dt) {
+  for (let w of waves) {
+    w.update(dt);
   }
 }
 
