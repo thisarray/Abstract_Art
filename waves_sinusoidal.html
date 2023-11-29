@@ -73,6 +73,11 @@ const END_COLOR = [0, 0, 139];
  */
 const ANIMATION_RATE = 0.01;
 
+/*
+ * Integer radius in pixels of the roll of each wave.
+ */
+const ROLL = 10;
+
 class Wave {
   constructor(middleY, toRight = false) {
     if (typeof middleY !== 'number') {
@@ -83,16 +88,16 @@ class Wave {
     }
 
     if (toRight) {
-      this.direction = 1;
-      this.offset = -PERIOD;
+      // To rotate clockwise, the angle must decrease
+      this.direction = -1;
     }
     else {
-      this.direction = -1;
-      this.offset = 0;
+      this.direction = 1;
     }
+    this.offset = 0;
 
     this.points = [];
-    for (let x = 0; x <= ((FREQUENCY + 1) * PERIOD); x++) {
+    for (let x = -PERIOD; x <= ((FREQUENCY + 1) * PERIOD); x++) {
       this.points.push([x, middleY - (HALF_HEIGHT * Math.sin((x / PERIOD) * 2 * Math.PI))]);
     }
 
@@ -103,7 +108,7 @@ class Wave {
    * Draw this Wave instance in color with a white outline.
    */
   draw(color) {
-    let wave = this.points.map(p => [p[0] + this.offset, p[1]]);
+    let wave = this.points.map(p => [p[0] + (ROLL * Math.cos(this.offset * Math.PI / 180)), p[1] - (ROLL * Math.sin(this.offset * Math.PI / 180))]);
 
     // Add points to close the polygon along the bottom
     wave.push([wave[wave.length-1][0], HEIGHT]);
@@ -118,9 +123,6 @@ class Wave {
     this.timer += dt;
     if (this.timer > ANIMATION_RATE) {
       this.offset += this.direction;
-      if ((this.offset <= -PERIOD) || (0 <= this.offset)) {
-        this.direction *= -1;
-      }
       this.timer = 0;
     }
   }
