@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parallax Waves</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Parallax Waves</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+/*
+ * Integer number of waves.
+ */
+const WAVE_COUNT = 6;
+
+/*
+ * Integer height in pixels of each wave.
+ */
+const WAVE_HEIGHT = Math.floor(HEIGHT / WAVE_COUNT);
+
+/*
+ * Integer half of the height in pixels of each wave.
+ */
+const HALF_HEIGHT = Math.floor(WAVE_HEIGHT / 2);
+
+/*
+ * Array color of the topmost wave.
+ */
+const START_COLOR = [135, 206, 250];
+
+/*
+ * Array color of the bottommost wave.
+ */
+const END_COLOR = [0, 0, 139];
+
+/*
+ * Duration in seconds to stay on each frame.
+ */
+const ANIMATION_RATE = 0.01;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+class Wave {
+  constructor(middleY, width, stride, speed) {
+    if (typeof middleY !== 'number') {
+      throw new TypeError('middleY must be a positive number.');
+    }
+    if (middleY <= 0) {
+      throw new RangeError('middleY must be a positive number.');
+    }
+    if (typeof width !== 'number') {
+      throw new TypeError('width must be a positive number.');
+    }
+    if (width <= 0) {
+      throw new RangeError('width must be a positive number.');
+    }
+    if (typeof stride !== 'number') {
+      throw new TypeError('stride must be a positive number.');
+    }
+    if (stride <= 0) {
+      throw new RangeError('stride must be a positive number.');
+    }
+    if (typeof speed !== 'number') {
+      throw new TypeError('speed must be a negative number.');
+    }
+    if (0 <= speed) {
+      throw new RangeError('speed must be a negative number.');
+    }
+
+    this.speed = speed;
+    this.offset = 0;
+
+    this.points = [];
+
+    let y = middleY,
+        factor = -1;
+    for (let x = 0; x <= width; x += stride) {
+      this.points.push([x, y]);
+      y += factor * getRandomInteger(1, Math.floor(HALF_HEIGHT / 3));
+      if (((factor < 0) && (y < (middleY - HALF_HEIGHT))) ||
+          ((factor > 0) && (y > (middleY + HALF_HEIGHT)))) {
+        // Reverse the direction when the wave gets too high or low
+        factor *= -1;
+      }
+    }
+    // End the wave back at the start
+    this.points[this.points.length-1][1] = middleY;
+    // Duplicate the wave so there is no awkward jump when scrolling
+    this.points = this.points.concat(this.points.map(p => [p[0] + width + 1, p[1]]));
+    this.width = width * 2;
+
+    this.timer = 0;
+  }
+
+  /*
+   * Draw this Wave instance in color with a white outline.
+   */
+  draw(color) {
+    let wave = this.points.map(p => [p[0] + this.offset, p[1]]);
+
+    // Add points to close the polygon along the bottom
+    wave.push([wave[wave.length-1][0], HEIGHT]);
+    wave.push([wave[0][0], HEIGHT]);
+
+    // Draw a white outline to separate and highlight the wave
+    screen.draw.polygon(wave, 'white');
+    screen.draw.filled_polygon(wave, color);
+  }
+
+  update(dt) {
+    this.timer += dt;
+    if (this.timer > ANIMATION_RATE) {
+      this.offset += this.speed;
+      if (this.offset <= -Math.floor(this.width / 2)) {
+        this.offset = 0;
+      }
+      this.timer = 0;
+    }
+  }
+}
+
+let waves;
+
+function reset() {
+  waves = [];
+  let i = 0;
+  for (let middle = HALF_HEIGHT; middle < HEIGHT; middle += WAVE_HEIGHT) {
+    waves.push(new Wave(middle, WIDTH, 4, -2 * (i + 1)));
+    i++;
+  }
+}
+
+function draw() {
+  let color = START_COLOR.slice(),
+      dr = Math.floor((END_COLOR[0] - START_COLOR[0]) / (waves.length + 1)),
+      dg = Math.floor((END_COLOR[1] - START_COLOR[1]) / (waves.length + 1)),
+      db = Math.floor((END_COLOR[2] - START_COLOR[2]) / (waves.length + 1));
+
+  screen.fill(color);
+  for (let w of waves) {
+    color[0] += dr;
+    color[1] += dg;
+    color[2] += db;
+    w.draw(color);
+  }
+}
+
+function update(dt) {
+  for (let w of waves) {
+    w.update(dt);
+  }
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
