@@ -27,6 +27,8 @@ The game screen appears here if your browser supports the Canvas API.
   <button type="button" id="pause">Pause</button>
 </section>
 
+<p>Click to reverse direction.</p>
+
 </main>
 
 <script>
@@ -95,12 +97,8 @@ class Wave {
     if (typeof speed !== 'number') {
       throw new TypeError('speed must be a negative number.');
     }
-    if (0 <= speed) {
-      throw new RangeError('speed must be a negative number.');
-    }
 
     this.speed = speed;
-    this.offset = 0;
 
     this.points = [];
 
@@ -120,6 +118,13 @@ class Wave {
     // Duplicate the wave so there is no awkward jump when scrolling
     this.points = this.points.concat(this.points.map(p => [p[0] + width + 1, p[1]]));
     this.width = width * 2;
+
+    if (this.speed <= 0) {
+      this.offset = 0;
+    }
+    else {
+      this.offset = -Math.floor(this.width / 2);
+    }
 
     this.timer = 0;
   }
@@ -143,9 +148,13 @@ class Wave {
     this.timer += dt;
     if (this.timer > ANIMATION_RATE) {
       this.offset += this.speed;
-      if (this.offset <= -Math.floor(this.width / 2)) {
+      if ((this.speed < 0) && (this.offset <= -Math.floor(this.width / 2))) {
         this.offset = 0;
       }
+      if ((this.speed > 0) && (0 <= this.offset)) {
+        this.offset = -Math.floor(this.width / 2);
+      }
+
       this.timer = 0;
     }
   }
@@ -180,6 +189,12 @@ function draw() {
 function update(dt) {
   for (let w of waves) {
     w.update(dt);
+  }
+}
+
+function on_mouse_down() {
+  for (let w of waves) {
+    w.speed = -1 * w.speed;
   }
 }
 
