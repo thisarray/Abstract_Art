@@ -72,12 +72,27 @@ class StainedGlass {
     // Draw the outline
     screen.draw.circle([this.x, this.y], this.radius, 'black', 2, 0, 180);
     screen.draw.circle([this.x, this.y], Math.floor(this.radius / 2), 'black', 2, 0, 180);
-    screen.draw.rect(new Rect(this.x - this.radius, this.y, this.radius, this.radius), 'black', 2);
-    screen.draw.rect(new Rect(this.x - this.radius, this.y + this.radius, this.radius, this.radius), 'black', 2);
-    screen.draw.rect(new Rect(this.x - this.radius, this.y + (this.radius * 2), this.radius, this.radius), 'black', 2);
-    screen.draw.rect(new Rect(this.x, this.y, this.radius, this.radius), 'black', 2);
-    screen.draw.rect(new Rect(this.x, this.y + this.radius, this.radius, this.radius), 'black', 2);
-    screen.draw.rect(new Rect(this.x, this.y + (this.radius * 2), this.radius, this.radius), 'black', 2);
+
+    for (let [leftX, topY] of [
+      [this.x - this.radius, this.y],
+      [this.x - this.radius, this.y + this.radius],
+      [this.x - this.radius, this.y + (this.radius * 2)],
+      [this.x, this.y],
+      [this.x, this.y + this.radius],
+      [this.x, this.y + (this.radius * 2)]]) {
+      let container = new Rect(leftX, topY, this.radius, this.radius),
+          leftSide = leftX < this.x;
+      if (leftSide) {
+        screen.draw.polygon([container.topleft, container.topright, container.bottomright], 'black', 2);
+        screen.draw.polygon([container.topleft, container.center, container.bottomleft], 'black', 2);
+        screen.draw.polygon([container.bottomleft, container.center, container.bottomright], 'black', 2);
+      }
+      else {
+        screen.draw.polygon([container.topleft, container.topright, container.bottomleft], 'black', 2);
+        screen.draw.polygon([container.topright, container.center, container.bottomright], 'black', 2);
+        screen.draw.polygon([container.bottomleft, container.center, container.bottomright], 'black', 2);
+      }
+    }
   }
 }
 
