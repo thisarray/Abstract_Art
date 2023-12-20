@@ -48,6 +48,14 @@ const WINDOW_WIDTH = 200;
  */
 const GUTTER = Math.floor((WIDTH - (WINDOW_WIDTH * WINDOW_COUNT)) / (WINDOW_COUNT + 1));
 
+/*
+ * Array of arrays of 3 string color names for the different panes.
+ */
+const THEMES = [
+  ['mistyrose', 'plum', 'skyblue'],
+  ['khaki', 'gold', 'coral']
+];
+
 class StainedGlass {
   constructor(leftX, topY) {
     if (typeof leftX !== 'number') {
@@ -69,9 +77,12 @@ class StainedGlass {
   }
 
   draw() {
-    // Draw the outline
-    screen.draw.circle([this.x, this.y], this.radius, 'black', 2, 0, 180);
-    screen.draw.circle([this.x, this.y], Math.floor(this.radius / 2), 'black', 2, 0, 180);
+    let halfRadius = Math.floor(this.radius / 2),
+        index = 0,
+        container, leftSide;
+
+    screen.draw.filled_circle([this.x, this.y], this.radius, 'lime', 2, 0, 180);
+    screen.draw.filled_circle([this.x, this.y], halfRadius, 'greenyellow', 2, 0, 180);
 
     for (let [leftX, topY] of [
       [this.x - this.radius, this.y],
@@ -80,19 +91,34 @@ class StainedGlass {
       [this.x, this.y],
       [this.x, this.y + this.radius],
       [this.x, this.y + (this.radius * 2)]]) {
-      let container = new Rect(leftX, topY, this.radius, this.radius),
-          leftSide = leftX < this.x;
+      container = new Rect(leftX, topY, this.radius, this.radius);
+      leftSide = leftX < this.x;
       if (leftSide) {
+        screen.draw.filled_polygon([container.topleft, container.topright, container.bottomright], THEMES[index][0]);
+        screen.draw.filled_polygon([container.topleft, container.center, container.bottomleft], THEMES[index][1]);
+        screen.draw.filled_polygon([container.bottomleft, container.center, container.bottomright], THEMES[index][2]);
+
         screen.draw.polygon([container.topleft, container.topright, container.bottomright], 'black', 2);
         screen.draw.polygon([container.topleft, container.center, container.bottomleft], 'black', 2);
         screen.draw.polygon([container.bottomleft, container.center, container.bottomright], 'black', 2);
       }
       else {
+        screen.draw.filled_polygon([container.topleft, container.topright, container.bottomleft], THEMES[index][0]);
+        screen.draw.filled_polygon([container.topright, container.center, container.bottomright], THEMES[index][1]);
+        screen.draw.filled_polygon([container.bottomleft, container.center, container.bottomright], THEMES[index][2]);
+
         screen.draw.polygon([container.topleft, container.topright, container.bottomleft], 'black', 2);
         screen.draw.polygon([container.topright, container.center, container.bottomright], 'black', 2);
         screen.draw.polygon([container.bottomleft, container.center, container.bottomright], 'black', 2);
       }
+
+      index = (index + 1) % 2;
     }
+
+    // Draw the outline
+    screen.draw.circle([this.x, this.y], this.radius, 'black', 2, 0, 180);
+    screen.draw.circle([this.x, this.y], halfRadius, 'black', 2, 0, 180);
+    screen.draw.line([this.x, this.y - this.radius], [this.x, this.y + (this.radius * 3)], 'black', 2);
   }
 }
 
