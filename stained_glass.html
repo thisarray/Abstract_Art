@@ -57,7 +57,7 @@ const THEMES = [
 ];
 
 class StainedGlass {
-  constructor(leftX, topY) {
+  constructor(leftX, topY, flipped = false) {
     if (typeof leftX !== 'number') {
       throw new TypeError('leftX must be a positive number.');
     }
@@ -74,15 +74,21 @@ class StainedGlass {
     this.radius = Math.floor(WINDOW_WIDTH / 2);
     this.x = leftX + this.radius;
     this.y = topY + this.radius;
+    this.flipped = flipped;
   }
 
   draw() {
     let halfRadius = Math.floor(this.radius / 2),
         index = 0,
+        colors = ['lime', 'greenyellow'],
         container, leftSide;
 
-    screen.draw.filled_circle([this.x, this.y], this.radius, 'lime', 2, 0, 180);
-    screen.draw.filled_circle([this.x, this.y], halfRadius, 'greenyellow', 2, 0, 180);
+    if (this.flipped) {
+      index = (index + 1) % 2;
+    }
+
+    screen.draw.filled_circle([this.x, this.y], this.radius, colors[index], 0, 180);
+    screen.draw.filled_circle([this.x, this.y], halfRadius, colors[(index+1)%2], 0, 180);
 
     for (let [leftX, topY] of [
       [this.x - this.radius, this.y],
@@ -127,7 +133,7 @@ let windows;
 function reset() {
   windows = [];
   for (let i = 0; i < WINDOW_COUNT; i++) {
-    windows.push(new StainedGlass(((GUTTER + WINDOW_WIDTH) * i) + GUTTER, 100));
+    windows.push(new StainedGlass(((GUTTER + WINDOW_WIDTH) * i) + GUTTER, 100, (i % 2) === 1));
   }
 }
 
