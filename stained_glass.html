@@ -87,8 +87,11 @@ class StainedGlass {
       index = (index + 1) % 2;
     }
 
-    screen.draw.filled_circle([this.x, this.y], this.radius, colors[index], 0, 180);
-    screen.draw.filled_circle([this.x, this.y], halfRadius, colors[(index+1)%2], 0, 180);
+    // Use the cover from the triangular panes below to fake the quarter circle panes
+    screen.draw.filled_circle([this.x, this.y], this.radius, colors[index], 90, 270);
+    screen.draw.filled_circle([this.x, this.y], this.radius, colors[(index+1)%2], -90, 90);
+    screen.draw.filled_circle([this.x, this.y], halfRadius, colors[(index+1)%2], 90, 270);
+    screen.draw.filled_circle([this.x, this.y], halfRadius, colors[index], -90, 90);
 
     for (let [leftX, topY] of [
       [this.x - this.radius, this.y],
