@@ -81,7 +81,7 @@ class StainedGlass {
     let halfRadius = Math.floor(this.radius / 2),
         index = 0,
         colors = ['lime', 'greenyellow'],
-        container, leftSide;
+        container, leftSide, polygons, i;
 
     if (this.flipped) {
       index = (index + 1) % 2;
@@ -103,22 +103,27 @@ class StainedGlass {
       container = new Rect(leftX, topY, this.radius, this.radius);
       leftSide = leftX < this.x;
       if (leftSide) {
-        screen.draw.filled_polygon([container.topleft, container.topright, container.bottomright], THEMES[index][0]);
-        screen.draw.filled_polygon([container.topleft, container.center, container.bottomleft], THEMES[index][1]);
-        screen.draw.filled_polygon([container.bottomleft, container.center, container.bottomright], THEMES[index][2]);
-
-        screen.draw.polygon([container.topleft, container.topright, container.bottomright], 'black', 2);
-        screen.draw.polygon([container.topleft, container.center, container.bottomleft], 'black', 2);
-        screen.draw.polygon([container.bottomleft, container.center, container.bottomright], 'black', 2);
+        polygons = [
+          [container.topleft, container.topright, container.bottomright],
+          [container.topleft, container.center, container.bottomleft],
+          [container.bottomleft, container.center, container.bottomright]
+        ];
       }
       else {
-        screen.draw.filled_polygon([container.topleft, container.topright, container.bottomleft], THEMES[index][0]);
-        screen.draw.filled_polygon([container.topright, container.center, container.bottomright], THEMES[index][1]);
-        screen.draw.filled_polygon([container.bottomleft, container.center, container.bottomright], THEMES[index][2]);
+        polygons = [
+          [container.topleft, container.topright, container.bottomleft],
+          [container.topright, container.center, container.bottomright],
+          [container.bottomleft, container.center, container.bottomright]
+        ];
+      }
 
-        screen.draw.polygon([container.topleft, container.topright, container.bottomleft], 'black', 2);
-        screen.draw.polygon([container.topright, container.center, container.bottomright], 'black', 2);
-        screen.draw.polygon([container.bottomleft, container.center, container.bottomright], 'black', 2);
+      i = 0;
+      for (let p of polygons) {
+        screen.draw.filled_polygon(p, THEMES[index][i]);
+        i++;
+      }
+      for (let p of polygons) {
+        screen.draw.polygon(p, 'black', 2);
       }
 
       index = (index + 1) % 2;
