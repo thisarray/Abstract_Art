@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Horizon</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Digital Horizon</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+function draw() {
+  screen.fill('white');
+
+  let middleX = Math.floor(WIDTH / 2),
+      middleY = Math.floor(HEIGHT / 2),
+      increment = 4;
+  for (let gap = 0; gap < middleX; gap += 100) {
+    screen.draw.line([middleX - gap, middleY], [middleX - (4 * gap), HEIGHT], 'purple', 2);
+    screen.draw.line([middleX + gap, middleY], [middleX + (4 * gap), HEIGHT], 'purple', 2);
+  }
+  for (let y = middleY; y < HEIGHT; y += increment) {
+    screen.draw.line([0, y], [WIDTH, y], 'purple', 2);
+    increment *= 2;
+  }
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
