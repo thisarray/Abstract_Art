@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sun Mountain</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Sun Mountain</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+let sunCenter, mountainPoints;
+
+function reset() {
+  let quarterWidth = Math.floor(WIDTH / 4),
+      quarterHeight = Math.floor(HEIGHT / 4);
+  sunCenter = [quarterWidth, quarterHeight];
+  mountainPoints = [[0, HEIGHT]];
+  mountainPoints.push([quarterWidth, getRandomInteger(2 * quarterHeight, 3 * quarterHeight)]);
+  mountainPoints.push([2 * quarterWidth, getRandomInteger(mountainPoints[mountainPoints.length-1][1] + 50, 7 * Math.floor(quarterHeight / 2))]);
+  mountainPoints.push([3 * quarterWidth, getRandomInteger(quarterHeight, 2 * quarterHeight)]);
+  mountainPoints.push([WIDTH, HEIGHT]);
+}
+
+function draw() {
+  screen.fill('white');
+  screen.draw.filled_circle(sunCenter, 50, 'yellow');
+  screen.draw.filled_polygon(mountainPoints, 'blue');
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
