@@ -65,7 +65,9 @@ function reset() {
 function draw() {
   screen.fill('white');
   screen.draw.filled_circle(sunCenter, 50, 'yellow');
+  screen.draw.circle(sunCenter, 50, 'black');
   screen.draw.filled_polygon(mountainPoints, 'blue');
+  screen.draw.polygon(mountainPoints, 'black');
 }
 
 window.addEventListener('load', (event) => {
