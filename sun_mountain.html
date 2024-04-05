@@ -46,12 +46,19 @@ let sunCenter, mountainPoints;
 
 function reset() {
   let quarterWidth = Math.floor(WIDTH / 4),
-      quarterHeight = Math.floor(HEIGHT / 4);
+      quarterHeight = Math.floor(HEIGHT / 4),
+      last = HEIGHT;
   sunCenter = [quarterWidth, quarterHeight];
-  mountainPoints = [[0, HEIGHT]];
-  mountainPoints.push([quarterWidth, getRandomInteger(2 * quarterHeight, 3 * quarterHeight)]);
-  mountainPoints.push([2 * quarterWidth, getRandomInteger(mountainPoints[mountainPoints.length-1][1] + 50, 7 * Math.floor(quarterHeight / 2))]);
-  mountainPoints.push([3 * quarterWidth, getRandomInteger(quarterHeight, 2 * quarterHeight)]);
+  mountainPoints = [[0, last]];
+  for (let i = 1; i < 6; i++) {
+    if ((i % 2) === 1) {
+      last = getRandomInteger(HEIGHT - ((i + 1) * 100), last);
+    }
+    else {
+      last = getRandomInteger(last + 50, HEIGHT);
+    }
+    mountainPoints.push([i * 130, last]);
+  }
   mountainPoints.push([WIDTH, HEIGHT]);
 }
 
