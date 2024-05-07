@@ -30,19 +30,18 @@ The game screen appears here if your browser supports the Canvas API.
 </main>
 
 <script>
-WIDTH = 600;
-HEIGHT = 600;
+WIDTH = 512;
+HEIGHT = 512;
 
 /*
  * Integer coordinates of the center of the screen.
  */
 const CENTER = [Math.floor(WIDTH / 2), Math.floor(HEIGHT / 2)];
 
-let increment, elapsed;
+let increment;
 
 function reset() {
-  increment = 1;
-  elapsed = 0;
+  increment = 8;
 }
 
 function draw() {
@@ -58,13 +57,18 @@ function draw() {
   }
 }
 
-function update(dt) {
-  elapsed += dt;
-  if (elapsed >= 0.25) {
-    elapsed = 0;
-    increment += 1;
-    if (increment > CENTER[0]) {
-      increment = 1;
+function on_mouse_down(pos, buttons) {
+  if ((buttons & mouse.LEFT) > 0) {
+    if (increment < CENTER[0]) {
+      increment *= 2;
+    }
+  }
+  else if ((buttons & mouse.MIDDLE) > 0) {
+    reset();
+  }
+  else if ((buttons & mouse.RIGHT) > 0) {
+    if (increment > 1) {
+      increment = Math.floor(increment / 2);
     }
   }
 }
