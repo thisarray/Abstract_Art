@@ -86,14 +86,16 @@ function draw() {
 
   let middleX = Math.floor(WIDTH / 2),
       middleY = Math.floor(HEIGHT / 2),
-      increment = 4;
+      increment = 4,
+      y = middleY;
   for (let gap = 0; gap < middleX; gap += 100) {
     screen.draw.line([middleX - gap, middleY], [middleX - (4 * gap), HEIGHT], 'purple', 2);
     screen.draw.line([middleX + gap, middleY], [middleX + (4 * gap), HEIGHT], 'purple', 2);
   }
-  for (let y = middleY; y < HEIGHT; y += increment) {
+  while (y < HEIGHT) {
     screen.draw.line([0, y], [WIDTH, y], 'purple', 2);
     increment *= 2;
+    y += increment;
   }
 }
 
