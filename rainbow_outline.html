@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rainbow</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Rainbow</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+TITLE = 'Rainbow';
+
+/*
+ * Array of string colors to use.
+ */
+const COLORS = [
+  'red',
+  'orange',
+  'yellow',
+  'green',
+  'blue',
+  'indigo',
+  'violet'
+];
+
+/*
+ * Integer size of the font to use.
+ */
+const FONT_SIZE = 64;
+
+function draw() {
+  screen.fill('black');
+
+  let y = 0;
+  for (let color of COLORS) {
+    screen.draw.text(TITLE.toUpperCase(), {
+      topleft: [0, y],
+      color: 'black',
+      fontsize: FONT_SIZE,
+      ocolor: color,
+      owidth: 1
+    });
+    y += FONT_SIZE;
+  }
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
