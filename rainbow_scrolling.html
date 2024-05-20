@@ -63,9 +63,14 @@ function draw() {
   screen.fill('black');
 
   for (let i = 0; i < COLORS.length; i++) {
+    let background = 'black';
+    if (i === 3) {
+      background = 'white';
+    }
+
     screen.draw.text(TITLE.toUpperCase(), {
       topleft: [0, i * FONT_SIZE],
-      color: 'black',
+      color: background,
       fontsize: FONT_SIZE,
       ocolor: COLORS[(offset+i)%COLORS.length],
       owidth: 1
