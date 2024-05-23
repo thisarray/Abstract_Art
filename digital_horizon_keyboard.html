@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Horizon</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Digital Horizon</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<p>1980s style digital horizon.</p>
+
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+/*
+ * Integer maximum height in pixels of each mountain.
+ */
+const MOUNTAIN_HEIGHT = 100;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+/*
+ * Add coordinates to the array feature to close the polygon.
+ */
+function toBottom(feature) {
+  let firstX = feature[0][0],
+      lastX = feature[feature.length-1][0];
+  feature.push([lastX, HEIGHT]);
+  feature.push([firstX, HEIGHT]);
+}
+
+let mountainPoints, offset;
+
+function reset() {
+  let bottomY = Math.floor(HEIGHT / 2) - 20,
+      y = bottomY,
+      factor = -1;
+
+  mountainPoints = [];
+  for (let x = 0; x <= WIDTH; x += 2) {
+    mountainPoints.push([x, y]);
+    y += factor * getRandomInteger(0, 4);
+    if (((factor < 0) && (y < (bottomY - MOUNTAIN_HEIGHT))) ||
+        ((factor > 0) && (y > bottomY))) {
+      // Reverse the direction when the mountain gets too high or low
+      factor *= -1;
+    }
+  }
+  toBottom(mountainPoints);
+
+  offset = 0;
+}
+
+function draw() {
+  screen.fill('purple', 'black');
+
+  screen.draw.filled_polygon(mountainPoints, 'black');
+
+  let middleX = Math.floor(WIDTH / 2),
+      middleY = Math.floor(HEIGHT / 2),
+      increment = 4 + offset,
+      y = middleY + offset;
+  for (let gap = 0; gap < middleX; gap += 100) {
+    screen.draw.line([middleX - gap, middleY], [middleX - (4 * gap), HEIGHT], 'purple', 2);
+    screen.draw.line([middleX + gap, middleY], [middleX + (4 * gap), HEIGHT], 'purple', 2);
+  }
+  screen.draw.line([0, middleY], [WIDTH, middleY], 'purple', 2);
+  while (y < HEIGHT) {
+    screen.draw.line([0, y], [WIDTH, y], 'purple', 2);
+    increment *= 2;
+    y += increment;
+  }
+}
+
+function on_key_down(key, mask, string) {
+  if (key === keys.UP) {
+    offset++;
+    if (offset >= 4) {
+      offset = 0;
+    }
+  }
+  else if (key === keys.DOWN) {
+    offset--;
+    if (offset < 0) {
+      offset = 3;
+    }
+  }
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
