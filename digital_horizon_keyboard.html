@@ -59,7 +59,7 @@ function toBottom(feature) {
   feature.push([firstX, HEIGHT]);
 }
 
-let mountainPoints, offset;
+let mountainPoints, offsetX, offsetY;
 
 function reset() {
   let bottomY = Math.floor(HEIGHT / 2) - 20,
@@ -78,7 +78,8 @@ function reset() {
   }
   toBottom(mountainPoints);
 
-  offset = 0;
+  offsetX = 0;
+  offsetY = 0;
 }
 
 function draw() {
@@ -88,11 +89,11 @@ function draw() {
 
   let middleX = Math.floor(WIDTH / 2),
       middleY = Math.floor(HEIGHT / 2),
-      increment = 4 + offset,
-      y = middleY + offset;
+      increment = 4 + offsetY,
+      y = middleY + offsetY;
   for (let gap = 0; gap < middleX; gap += 100) {
-    screen.draw.line([middleX - gap, middleY], [middleX - (4 * gap), HEIGHT], 'purple', 2);
-    screen.draw.line([middleX + gap, middleY], [middleX + (4 * gap), HEIGHT], 'purple', 2);
+    screen.draw.line([middleX + offsetX - gap, middleY], [middleX + (4 * offsetX) - (4 * gap), HEIGHT], 'purple', 2);
+    screen.draw.line([middleX + offsetX + gap, middleY], [middleX + (4 * offsetX) + (4 * gap), HEIGHT], 'purple', 2);
   }
   screen.draw.line([0, middleY], [WIDTH, middleY], 'purple', 2);
   while (y < HEIGHT) {
@@ -104,15 +105,29 @@ function draw() {
 
 function on_key_down(key, mask, string) {
   if (key === keys.UP) {
-    offset++;
-    if (offset >= 4) {
-      offset = 0;
+    offsetY++;
+    if (offsetY >= 4) {
+      offsetY = 0;
+    }
+  }
+  else if (key === keys.RIGHT) {
+    // To appear moving right the grid lines need to move left
+    offsetX--;
+    if (offsetX < 0) {
+      offsetX = 99;
     }
   }
   else if (key === keys.DOWN) {
-    offset--;
-    if (offset < 0) {
-      offset = 3;
+    offsetY--;
+    if (offsetY < 0) {
+      offsetY = 3;
+    }
+  }
+  else if (key === keys.LEFT) {
+    // To appear moving left the grid lines need to move right
+    offsetX++;
+    if (offsetX >= 100) {
+      offsetX = 0;
     }
   }
 }
