@@ -111,26 +111,26 @@ function draw() {
 }
 
 function on_key_down(key, mask, string) {
-  if (key === keys.UP) {
+  if ((key === keys.UP) || (key === keys.W)) {
     offsetY++;
     if (offsetY >= 4) {
       offsetY = 0;
     }
   }
-  else if (key === keys.RIGHT) {
+  else if ((key === keys.RIGHT) || (key === keys.D)) {
     // To appear moving right the grid lines need to move left
     offsetX--;
     if (offsetX < 0) {
       offsetX = 99;
     }
   }
-  else if (key === keys.DOWN) {
+  else if ((key === keys.DOWN) || (key === keys.S)) {
     offsetY--;
     if (offsetY < 0) {
       offsetY = 3;
     }
   }
-  else if (key === keys.LEFT) {
+  else if ((key === keys.LEFT) || (key === keys.A)) {
     // To appear moving left the grid lines need to move right
     offsetX++;
     if (offsetX >= 100) {
