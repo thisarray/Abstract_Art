@@ -102,6 +102,7 @@ function reset() {
 
 function draw() {
   screen.fill('skyblue');
+  screen.draw.filled_circle([Math.floor(WIDTH / 2), Math.floor(HEIGHT / 2) + 25], 50, 'yellow');
   for (let [feature, color] of [
     [mountainRight, 'olive'],
     [mountainLeft, 'sienna'],
