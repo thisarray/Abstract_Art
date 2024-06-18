@@ -99,7 +99,7 @@ function reset() {
   }
   toBottom(water);
 
-  sunCenter = [Math.floor(WIDTH / 2), Math.floor(HEIGHT / 2) + 25];
+  sunCenter = [Math.floor(WIDTH / 2), HEIGHT - 25];
 }
 
 function draw() {
@@ -111,6 +111,10 @@ function draw() {
     [water, 'aqua']]) {
     screen.draw.filled_polygon(feature, color);
   }
+}
+
+function update(dt) {
+  sunCenter[1]--;
 }
 
 window.addEventListener('load', (event) => {
