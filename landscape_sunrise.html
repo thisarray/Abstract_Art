@@ -46,6 +46,11 @@ const UPPER_LIMIT = Math.floor(HEIGHT / 4);
 const LOWER_LIMIT = HEIGHT - UPPER_LIMIT;
 
 /*
+ * Array of integer amounts by which to move the sun.
+ */
+const SUN_DELTA = [1, -5];
+
+/*
  * Return a random integer N such that min <= N < max.
  */
 function getRandomInteger(min, max) {
@@ -114,7 +119,8 @@ function draw() {
 }
 
 function update(dt) {
-  sunCenter[1]--;
+  sunCenter[0] += SUN_DELTA[0];
+  sunCenter[1] += SUN_DELTA[1];
 }
 
 window.addEventListener('load', (event) => {
